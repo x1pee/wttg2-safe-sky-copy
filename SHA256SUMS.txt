@@ -1,0 +1,1 @@
+df68fb59f0eff0a7908e2f5ad0fbfb8fa400f58c93377db945b188ab3b032c24  dist/WTTG2.SafeSkyCopy.dll
