@@ -11,7 +11,7 @@ using UnityEngine.EventSystems;
 
 namespace WTTG2.SafeSkyCopy
 {
-    [BepInPlugin("pmxp.wttg2.safe-sky-copy", "Safe skyBREAK Copy", "1.0.0")]
+    [BepInPlugin("pmxp.wttg2.safe-sky-copy", "Safe skyBREAK Copy", "1.0.1")]
     public sealed class SafeSkyCopy : BaseUnityPlugin
     {
         private ConfigEntry<bool> featureEnabled, hotkeysEnabled, panelEnabled, debugLogging;
@@ -48,7 +48,7 @@ namespace WTTG2.SafeSkyCopy
                 helperField = typeof(skyBreakBehavior).GetField("myTerminalHelper", BindingFlags.Instance | BindingFlags.NonPublic);
                 linesField = typeof(TerminalHelperBehavior).GetField("currentTerminalLines", BindingFlags.Instance | BindingFlags.NonPublic);
                 if (helperField == null || linesField == null) throw new MissingFieldException("Unsupported skyBREAK layout; read-only bindings not found.");
-                Logger.LogInfo("Safe skyBREAK Copy 1.0.0 ready. F8: selection panel; Ctrl+Shift+C: copy transcript. Harmony patches: 0.");
+                Logger.LogInfo("Safe skyBREAK Copy 1.0.1 ready. F8: selection panel; Ctrl+Shift+C: copy transcript. Harmony patches: 0.");
             }
             catch (Exception ex) { Fail(ex); }
         }
@@ -58,7 +58,7 @@ namespace WTTG2.SafeSkyCopy
             if (faulted) return;
             try
             {
-                if (pendingClose || !featureEnabled.Value || !panelEnabled.Value)
+                if (pendingClose || !featureEnabled.Value || !panelEnabled.Value || !hotkeysEnabled.Value)
                 {
                     pendingClose = false;
                     ClosePanel();
@@ -68,11 +68,17 @@ namespace WTTG2.SafeSkyCopy
                     pendingRefresh = false;
                     if (featureEnabled.Value && panelOpen) RefreshSnapshot(true);
                 }
-                if (!hotkeysEnabled.Value || !Application.isFocused) return;
+                if (!hotkeysEnabled.Value) return;
+                if (panelOpen && Time.unscaledTime >= nextRefresh)
+                {
+                    nextRefresh = Time.unscaledTime + Mathf.Clamp(refreshSeconds.Value, 0.1f, 5f);
+                    RefreshSnapshot(false);
+                }
+                if (!Application.isFocused) return;
                 if (Input.GetKeyDown(panelKey.Value))
                 {
                     Config.Reload();
-                    if (!featureEnabled.Value || !panelEnabled.Value) { ClosePanel(); return; }
+                    if (!featureEnabled.Value || !panelEnabled.Value || !hotkeysEnabled.Value) { ClosePanel(); return; }
                     panelOpen = !panelOpen;
                     if (panelOpen) { RefreshSnapshot(true); SetPanelInput(true); nextRefresh = Time.unscaledTime + 0.5f; }
                     else { SetPanelInput(false); ClearSnapshot(); }
@@ -85,18 +91,13 @@ namespace WTTG2.SafeSkyCopy
                     RefreshSnapshot(true);
                     Copy(transcript);
                 }
-                if (panelOpen && Time.unscaledTime >= nextRefresh)
-                {
-                    nextRefresh = Time.unscaledTime + Mathf.Clamp(refreshSeconds.Value, 0.1f, 5f);
-                    RefreshSnapshot(false);
-                }
             }
             catch (Exception ex) { Fail(ex); }
         }
 
         private void LateUpdate()
         {
-            if (faulted || !panelOpen) return;
+            if (faulted || !panelOpen || !hotkeysEnabled.Value) return;
             try { SuspendTerminalInput(); }
             catch (Exception ex) { Fail(ex); }
         }

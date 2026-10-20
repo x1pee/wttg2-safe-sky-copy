@@ -1,1 +1,1 @@
-df68fb59f0eff0a7908e2f5ad0fbfb8fa400f58c93377db945b188ab3b032c24  dist/WTTG2.SafeSkyCopy.dll
+a1994584a2e54a1ac988898a655c8f55211ef1382ebb05774a2d5c61db8ed1ff  dist/WTTG2.SafeSkyCopy.dll
