@@ -1,6 +1,8 @@
-# Safe skyBREAK Copy
+# Safe skyBREAK Copy — Welcome to the Game II
 
-WTTG2 skyBREAK text copy mod.
+Copy skyBREAK text and already revealed Wi-Fi passwords in Welcome to the Game II (WTTG2).
+
+**Скачать:** [готовые файлы](https://github.com/x1pee/wttg2-safe-sky-copy/releases/tag/v1.0.0).
 
 Копирует только уже показанный текст skyBREAK: строки терминала, BSSID и результаты. Не выполняет команды и не раскрывает неизвестные пароли. Обработчики запуска и закрытия терминала не патчатся.
 
